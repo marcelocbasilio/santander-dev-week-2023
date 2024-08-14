@@ -1,0 +1,55 @@
+{
+  "id": 1,
+  "name": "Devweekerson",
+  "account": {
+    "id": 1,
+    "number": "01.097954-4",
+    "agency": "2030",
+    "balance": 624.12,
+    "limit": 1000.00
+  },
+  "card": {
+    "id": 1,
+    "number": "xxxx xxxx xxxx 1111",
+    "limit": 2000.00
+  },
+  "features": [
+    {
+      "id": 1,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/pix.svg",
+      "description": "PIX"
+    },
+    {
+      "id": 2,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/pay.svg",
+      "description": "Pagar"
+    },
+    {
+      "id": 3,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/transfer.svg",
+      "description": "Transferir"
+    },
+    {
+      "id": 4,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/account.svg",
+      "description": "Conta Corrente"
+    },
+    {
+      "id": 5,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/cards.svg",
+      "description": "Cartões"
+    }
+  ],
+  "news": [
+    {
+      "id": 2,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/insurance.svg",
+      "description": "Santander Seguro Casa, seu faz-tudo. Mais de 50 serviços pra você. Confira!"
+    },
+    {
+      "id": 1,
+      "icon": "https://marcelocbasilio.github.io/santander-dev-week-2023/docs/icons/credit.svg",
+      "description": "O Santander tem soluções de crédito sob medida pra você. Confira!"
+    }
+  ]
+}

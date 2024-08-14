@@ -1,15 +1,25 @@
 package com.marcelocbasilio.service.impl;
 
-import com.marcelocbasilio.controller.exception.GlobalExceptionHandler;
 import com.marcelocbasilio.domain.model.User;
 import com.marcelocbasilio.domain.repository.IUserRepository;
 import com.marcelocbasilio.service.IUserService;
+import com.marcelocbasilio.service.exception.BusinessException;
+import com.marcelocbasilio.service.exception.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
+import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 public class UserServiceImpl implements IUserService {
+
+    /**
+     * User ID used at Santander Dev Week 2023.
+     * So, we're going to create some rules to keep it intact.
+     */
+    private static final Long UNCHANGEABLE_USER_ID = 1L;
 
     private final IUserRepository userRepository;
 
@@ -17,21 +27,63 @@ public class UserServiceImpl implements IUserService {
         this.userRepository = userRepository;
     }
 
-    @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    @Transactional(readOnly = true)
+    public List<User> findAll() {
+        return this.userRepository.findAll();
     }
 
     @Override
-    public User create(User user) {
-        if (user.getId() != null && userRepository.existsById(user.getId())) {
-            throw new IllegalArgumentException("User already exists!");
+    @Transactional(readOnly = true)
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(NotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public User create(User userToCreate) {
+        ofNullable(userToCreate).orElseThrow(() -> new BusinessException("User to create must not be null."));
+        ofNullable(userToCreate.getAccount()).orElseThrow(() -> new BusinessException("User account must not be null."));
+        ofNullable(userToCreate.getCard()).orElseThrow(() -> new BusinessException("User card must not be null."));
+
+        this.validateChangeableId(userToCreate.getId(), "created");
+        if (userRepository.existsByAccountNumber(userToCreate.getAccount().getNumber())) {
+            throw new BusinessException("This account number already exists.");
+        }
+        if (userRepository.existsByCardNumber(userToCreate.getCard().getNumber())) {
+            throw new BusinessException("This card number already exists.");
+        }
+        return this.userRepository.save(userToCreate);
+    }
+
+    @Override
+    @Transactional
+    public User update(Long id, User userToUpdate) {
+        this.validateChangeableId(id, "updated");
+        User dbUser = this.findById(id);
+        if (!dbUser.getId().equals(userToUpdate.getId())) {
+            throw new BusinessException("Update IDs must be the same.");
         }
 
-        if (userRepository.existsByAccountNumber(user.getAccount().getNumber())) {
-            throw new IllegalArgumentException("Account number already exists!");
-        }
+        dbUser.setName(userToUpdate.getName());
+        dbUser.setAccount(userToUpdate.getAccount());
+        dbUser.setCard(userToUpdate.getCard());
+        dbUser.setFeatures(userToUpdate.getFeatures());
+        dbUser.setNews(userToUpdate.getNews());
 
-        return userRepository.save(user);
+        return this.userRepository.save(dbUser);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        this.validateChangeableId(id, "deleted");
+        User dbUser = this.findById(id);
+        this.userRepository.delete(dbUser);
+    }
+
+    private void validateChangeableId(Long id, String operation) {
+        if (UNCHANGEABLE_USER_ID.equals(id)) {
+            throw new BusinessException("User with ID %d can not be %s.".formatted(UNCHANGEABLE_USER_ID, operation));
+        }
     }
 }
